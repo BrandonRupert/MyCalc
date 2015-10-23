@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package mycalc;
+//import java.io.* ; 
 
 /**
  *
@@ -11,7 +12,10 @@ package mycalc;
  */
 public class MyCalcUI extends javax.swing.JFrame {
     
-    public String rawInfix ; 
+    public String rawInfix, oldExpr, newExpr; 
+    int cursorPos = 0 ; 
+    int oldCursorPos = 0 ;
+    int symbLen = 0 ; 
     /**
      * Creates new form MyCalcUI
      */
@@ -61,10 +65,9 @@ public class MyCalcUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        exprScrn.setText("2/3+4*2_");
+        exprScrn.setText("_");
         exprScrn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        ansScrn.setText("8.666666666666666");
         ansScrn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         errScrn.setForeground(new java.awt.Color(255, 51, 51));
@@ -93,7 +96,6 @@ public class MyCalcUI extends javax.swing.JFrame {
         });
 
         btn4.setText("4");
-        btn4.setPreferredSize(new java.awt.Dimension(75, 29));
         btn4.setSize(new java.awt.Dimension(97, 25));
         btn4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -376,29 +378,50 @@ public class MyCalcUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    private void addSymbol( String symbol )
+    {
+        symbLen = symbol.length() ; 
+        oldExpr = exprScrn.getText() ; 
+        if ( cursorPos == 0 ){
+            newExpr = symbol + oldExpr ;
+        }
+        else{
+            newExpr = oldExpr.substring(0, cursorPos) + symbol +
+                    oldExpr.substring(cursorPos, oldExpr.length()) ;
+        }
+        exprScrn.setText(newExpr) ; 
 
+        oldCursorPos = cursorPos ; 
+        cursorPos += symbLen ; 
+    }
     private void btn2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn2ActionPerformed
         // TODO add your handling code here:
+        addSymbol("2") ; 
     }//GEN-LAST:event_btn2ActionPerformed
 
     private void btnPiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPiActionPerformed
         // TODO add your handling code here:
+        addSymbol("Pi") ; 
     }//GEN-LAST:event_btnPiActionPerformed
 
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
         // TODO add your handling code here:
+        addSymbol("1") ; 
     }//GEN-LAST:event_btn1ActionPerformed
 
     private void btn3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn3ActionPerformed
         // TODO add your handling code here:
+        addSymbol("3") ; 
     }//GEN-LAST:event_btn3ActionPerformed
 
     private void btnPlsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlsActionPerformed
         // TODO add your handling code here:
+        addSymbol("+") ; 
     }//GEN-LAST:event_btnPlsActionPerformed
 
     private void btnMinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMinActionPerformed
         // TODO add your handling code here:
+        addSymbol("-") ; 
     }//GEN-LAST:event_btnMinActionPerformed
 
     private void btnEqlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEqlActionPerformed
@@ -407,87 +430,147 @@ public class MyCalcUI extends javax.swing.JFrame {
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
         // TODO add your handling code here:
+        addSymbol("4") ; 
     }//GEN-LAST:event_btn4ActionPerformed
 
     private void btn5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn5ActionPerformed
         // TODO add your handling code here:
+        addSymbol("5") ; 
     }//GEN-LAST:event_btn5ActionPerformed
 
     private void btn6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn6ActionPerformed
         // TODO add your handling code here:
+        addSymbol("6") ; 
     }//GEN-LAST:event_btn6ActionPerformed
 
     private void bnMulActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnMulActionPerformed
         // TODO add your handling code here:
+        addSymbol("X") ; 
     }//GEN-LAST:event_bnMulActionPerformed
 
     private void btnDivActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDivActionPerformed
         // TODO add your handling code here:
+        addSymbol("/") ; 
     }//GEN-LAST:event_btnDivActionPerformed
 
     private void btnClrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClrActionPerformed
         // TODO add your handling code here:
         exprScrn.setText("_");
         ansScrn.setText("");
+        newExpr = "" ; 
         rawInfix = "" ; 
-        errScrn.setText("_") ; 
+        errScrn.setText("") ; 
+        cursorPos = 0 ; 
+        oldCursorPos = cursorPos ; 
         
     }//GEN-LAST:event_btnClrActionPerformed
 
     private void btn7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn7ActionPerformed
         // TODO add your handling code here:
+        addSymbol("7") ; 
     }//GEN-LAST:event_btn7ActionPerformed
 
     private void btn8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn8ActionPerformed
         // TODO add your handling code here:
+        addSymbol("8") ; 
     }//GEN-LAST:event_btn8ActionPerformed
 
     private void btn9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn9ActionPerformed
         // TODO add your handling code here:
+        addSymbol("9") ; 
     }//GEN-LAST:event_btn9ActionPerformed
 
     private void btnPwrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPwrActionPerformed
         // TODO add your handling code here:
+        addSymbol("^") ; 
     }//GEN-LAST:event_btnPwrActionPerformed
 
     private void btnLParActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLParActionPerformed
         // TODO add your handling code here:
+        addSymbol("(") ; 
     }//GEN-LAST:event_btnLParActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here
+        oldExpr = exprScrn.getText() ;
+        oldCursorPos = cursorPos ; 
+        ansScrn.setText(""); 
+        errScrn.setText("") ; 
+        if ( cursorPos > 1 ) {
+            newExpr = oldExpr.substring(0, cursorPos-1) + "_" 
+                    + oldExpr.substring(cursorPos+1, oldExpr.length());
+            exprScrn.setText( newExpr );
+            cursorPos -- ; 
+            
+        }
+        else{ 
+        
+            newExpr = "_" + oldExpr.substring(cursorPos+1, oldExpr.length());
+            exprScrn.setText(newExpr) ; 
+
+            cursorPos = 0 ;
+        }
+    
+        System.out.println(cursorPos);
+        
+        
+        
     }//GEN-LAST:event_btnDelActionPerformed
 
     private void btnLCurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLCurActionPerformed
         // TODO add your handling code here:
+        if (cursorPos > 0 ){ 
+            oldExpr = exprScrn.getText() ; 
+            oldCursorPos = cursorPos ; 
+        
+            newExpr = oldExpr.substring(0,cursorPos -1 ) +"_"
+                    + oldExpr.substring(cursorPos -1, oldExpr.length());
+        
+            cursorPos -- ; 
+            newExpr = newExpr.substring(0, oldCursorPos + 1)
+                    + newExpr.substring(oldCursorPos + 2, 
+                            newExpr.length()) ; 
+        
+            exprScrn.setText(newExpr); 
+        }
+        
+        
     }//GEN-LAST:event_btnLCurActionPerformed
 
     private void btnRCurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRCurActionPerformed
         // TODO add your handling code here:
+        oldExpr = exprScrn.getText()  ; 
+       
     }//GEN-LAST:event_btnRCurActionPerformed
 
     private void btnNegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNegActionPerformed
         // TODO add your handling code here:
+        addSymbol("(-)") ; 
     }//GEN-LAST:event_btnNegActionPerformed
 
     private void btn0ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn0ActionPerformed
         // TODO add your handling code here:
+        addSymbol("0") ; 
     }//GEN-LAST:event_btn0ActionPerformed
 
     private void btnPntActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPntActionPerformed
         // TODO add your handling code here:
+        addSymbol(".") ; 
     }//GEN-LAST:event_btnPntActionPerformed
 
     private void btnRParActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRParActionPerformed
         // TODO add your handling code here:
+        addSymbol(")") ; 
     }//GEN-LAST:event_btnRParActionPerformed
 
     private void btnExpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExpActionPerformed
         // TODO add your handling code here:
+        addSymbol("e^(") ; 
     }//GEN-LAST:event_btnExpActionPerformed
 
     private void btnPw10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPw10ActionPerformed
         // TODO add your handling code here:
+        addSymbol("10^(") ; 
     }//GEN-LAST:event_btnPw10ActionPerformed
 
     /**
