@@ -13,8 +13,9 @@ public class MyCalcUI extends javax.swing.JFrame {
     public String fmtInfix, postfix ; 
     //negative sign read internally as single underscore, 
     //not to be confused with underscore as cursor in UI display
-    public String numerics = ".01234567890_" ; 
-    public String binaryOps = "-^/*+"; 
+    //P is pi, e is e, replaced in postfix eval with the numbers 
+    public String numerics = ".01234567890_P" ; 
+    public String binaryOps = "-^/X+"; 
 
     
     
@@ -473,7 +474,7 @@ public class MyCalcUI extends javax.swing.JFrame {
         Deque<String> postfix = new ArrayDeque<String>() ; 
         Deque<String> opers = new ArrayDeque<String>() ; 
         Deque<String> readyPostfix = new ArrayDeque<String>() ; 
-        prefs.put("*",3);
+        prefs.put("X",3);
         prefs.put("/",3);
         prefs.put("+",2);
         prefs.put("-",2);
@@ -602,6 +603,11 @@ public class MyCalcUI extends javax.swing.JFrame {
                         && (!token.substring(0,1).equals("_"))){
                     return "bad negative" ; 
                 }
+                else if(token.equals("P")){
+                    value = (float)Math.PI; 
+                    opers.push(value); 
+                }
+
                 else{
                     value = Float.parseFloat(token) ; 
                     opers.push(value);
@@ -685,9 +691,9 @@ public class MyCalcUI extends javax.swing.JFrame {
         }
         // Remove cursor 
         rawInfix = rawInfix.replace("_", "") ; 
-        rawInfix = rawInfix.replace("Pi", String.valueOf(Math.PI) ) ; 
-        rawInfix = rawInfix.replace("e", String.valueOf(Math.E)) ; 
-        System.out.println(rawInfix) ; 
+        rawInfix = rawInfix.replace("Pi", "P" ) ;
+        rawInfix = rawInfix.replace("e", String.valueOf(Math.E)) ;
+
         // Expressing negative by prefixed underscore _
         rawInfix = rawInfix.replace( "(-)", "_"); 
         if ((rawInfix.length() > 1 ) && ( binaryOps.contains( rawInfix.substring(0,1) ) 
