@@ -17,7 +17,7 @@ public class MyCalcUI extends javax.swing.JFrame {
     public String rawInfix, oldExpr, newExpr, ansText ; 
     public String fmtInfix, postfix ; 
     public String numerics = ".01234567890_" ; 
-    //public String nonNumerics = ")(/+*-^" ; 
+
 
     
     
@@ -391,10 +391,24 @@ public class MyCalcUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private boolean isNum( String strIn){
-        return numerics.contains( strIn) ;
+        String[] eachChar  ;
+        eachChar = strIn.split("") ; 
+        for( int i  =0 ; i < eachChar.length; i++){
+            if ( !numerics.contains( eachChar[i]) ) {
+                        return false ; 
+                    }
+        }
+        return true  ;
     }
     private boolean notNum( String strIn){
-        return !numerics.contains(strIn) ; 
+        String[] eachChar ; 
+        eachChar = strIn.split("") ; 
+        for( int i = 0; i < eachChar.length; i++){
+            if ( numerics.contains( eachChar[i])){
+                return false; 
+            }
+        }
+        return true  ; 
     }
     private String fmtInfix(String rawInfix ){
         String fmted = "" ; 
@@ -449,6 +463,7 @@ public class MyCalcUI extends javax.swing.JFrame {
         Map<String,Integer> prefs = new HashMap<String,Integer>() ; 
         Deque<String> postfix = new ArrayDeque<String>() ; 
         Deque<String> opers = new ArrayDeque<String>() ; 
+        Deque<String> readyPostfix = new ArrayDeque<String>() ; 
         prefs.put("*",3);
         prefs.put("/",3);
         prefs.put("+",2);
@@ -456,6 +471,7 @@ public class MyCalcUI extends javax.swing.JFrame {
         prefs.put("(", 0);
         prefs.put(")", 0) ;
         prefs.put("^",1) ;
+
         String postfixOut, token, topToken  ; 
         postfixOut ="" ; 
         String infix ; 
@@ -464,47 +480,53 @@ public class MyCalcUI extends javax.swing.JFrame {
         infix = infix.replace("]", " ") ;
         infix = infix.replace("{", " ") ; 
         infix = infix.replace("}", " ") ; 
-        splitInfix = infix.split(" ") ; 
-        
-        for( int i= 0; i < splitInfix.length; i++)
-        {
-            System.out.println(splitInfix[i]) ; 
-        }
-        for( int i =0 ; i < splitInfix.length; i++){
+        infix = infix.trim() ; 
+
+        splitInfix = infix.split("\\s+") ;
+
+
+        for( int i = 0 ; i < splitInfix.length; i++){
             token = splitInfix[i] ; 
-            if ( notNum(token)){
+
+            if ( isNum(token)){
                 postfix.push(token);
+
             }
             else if( token.equals("(")){
                 opers.push(token);
+
             }
             else if( token.equals(")")){
                 topToken = opers.pop() ; 
                 while ( !topToken.equals("(")){
+
                     postfix.push(topToken);
                     topToken = opers.pop() ; 
                 }
             }
             else{
-                System.out.println(opers.size()) ; 
-                while( ( prefs.get(opers.getLast()) >= prefs.get(token))
-                        &&( opers.size() != 0 ) 
+ 
+                while(  ( opers.size() != 0) &&
+                        ( prefs.get(opers.peekLast()) >= prefs.get(token))
+
                         ){
                         postfix.push( opers.pop() );
                 }
                 opers.push(token);
             }
         }
+
         while( opers.size() != 0 )
         {
             postfix.push(opers.pop());
         }
-        
-        for( int i=0 ; i < postfix.size() ; i++){
-        
-            postfixOut += " " + postfix.pop() ; 
+        while ( postfix.size() != 0 ){
+            readyPostfix.push( postfix.pop() );
+             
         }
-         System.out.println("OK" + postfixOut);       
+        while (readyPostfix.size() != 0){
+            postfixOut += " " + readyPostfix.pop() ;
+        }
         return postfixOut ; 
 
     
@@ -527,7 +549,7 @@ public class MyCalcUI extends javax.swing.JFrame {
             if ( ( op2 < 0.0 ) && ( op1 == 0.0)){
                 return "divide0";
             }
-            else if( (op2 != 0) &&  ( (int)( 1/op2)%2 == 0 ) ){
+            else if( (op1 < 0) &&  ( (int)( 1/op2)%2 == 0 ) ){
                 return "unreal" ; 
             }
             else{
@@ -549,7 +571,9 @@ public class MyCalcUI extends javax.swing.JFrame {
         String token , ans, result ; 
         float value, op1, op2 ; 
         Deque<Float> opers = new ArrayDeque<Float>() ;
-        String[] tokens = postfix.split(" ") ; 
+        postfix = postfix.trim() ; 
+        String[] tokens = postfix.split("\\s+") ; 
+ 
         for( int i = 0; i < tokens.length ; i++ ){
             token = tokens[i];
             if ( !notNum( token) ){
@@ -648,7 +672,7 @@ public class MyCalcUI extends javax.swing.JFrame {
         rawInfix = rawInfix.replace("e", String.valueOf(Math.E)) ; 
         // Expressing negative by prefixed underscore _
         rawInfix = rawInfix.replace( "(-)", "_"); 
-        System.out.println(rawInfix) ; 
+
         ansText = evalPostfix(toPostfix(fmtInfix(rawInfix))) ; 
         if ( ansText.equals("divide0") || ansText.equals("syntaxError") ||
                 ansText.equals("bad negative") ||
@@ -759,7 +783,7 @@ public class MyCalcUI extends javax.swing.JFrame {
             cursorPos = 0 ;
         }
     
-        System.out.println(cursorPos);
+
         
         
         
