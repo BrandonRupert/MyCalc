@@ -4,7 +4,9 @@
  * and open the template in the editor.
  */
 package mycalc;
+import java.util.* ; 
 //import java.io.* ; 
+//import java.math.* ; 
 
 /**
  *
@@ -12,10 +14,19 @@ package mycalc;
  */
 public class MyCalcUI extends javax.swing.JFrame {
     
-    public String rawInfix, oldExpr, newExpr; 
+    public String rawInfix, oldExpr, newExpr, ansText ; 
+    public String fmtInfix, postfix ; 
+    public String numerics = ".01234567890_" ; 
+    //public String nonNumerics = ")(/+*-^" ; 
+
+    
+    
+    
+    boolean noErrors = true ; 
     int cursorPos = 0 ; 
     int oldCursorPos = 0 ;
     int symbLen = 0 ; 
+
     /**
      * Creates new form MyCalcUI
      */
@@ -378,6 +389,203 @@ public class MyCalcUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private boolean isNum( String strIn){
+        return numerics.contains( strIn) ;
+    }
+    private boolean notNum( String strIn){
+        return !numerics.contains(strIn) ; 
+    }
+    private String fmtInfix(String rawInfix ){
+        String fmted = "" ; 
+        String prevLetter, currLetter ;
+        currLetter = rawInfix.substring(0,1) ; 
+        if ( isNum( currLetter)){
+            fmted = fmted + "{" + currLetter ;  
+        }
+        else{
+            fmted = fmted + "[" + currLetter ; 
+        }
+        for( int i=1; i < rawInfix.length() -1 ; i++){
+            prevLetter = rawInfix.substring(i-1,i) ; 
+            currLetter = rawInfix.substring(i, i+1) ; 
+            
+            if( notNum(prevLetter) && isNum(currLetter) ){
+                fmted=fmted+"]{" + currLetter ;
+            }
+            else if( isNum(prevLetter) && notNum(currLetter)){
+                fmted = fmted+"}[" + currLetter ; 
+            }
+            else if( isNum(prevLetter) && isNum(currLetter)){
+                fmted = fmted + currLetter ; 
+            }
+            else{
+                fmted = fmted + "][" + currLetter ; 
+            }
+        }
+        currLetter = rawInfix.substring( rawInfix.length() -1,
+                rawInfix.length() );
+        prevLetter = rawInfix.substring( rawInfix.length() -2, 
+                rawInfix.length() -1 ) ;
+        if ( isNum( currLetter) && notNum( prevLetter ) ){
+            fmted = fmted +"]{"+ currLetter + "}" ;
+        }
+        else if( isNum(currLetter)&& isNum(prevLetter)){
+            fmted=fmted+currLetter + "}" ; 
+        }
+        else if(notNum(currLetter)&& isNum(prevLetter)){
+            fmted=fmted+"}["+ currLetter +"]" ; 
+        }
+        else{
+            fmted = fmted+"][" +currLetter +"]" ; 
+        }
+        return fmted ; 
+    }
+    
+    
+    
+    private String toPostfix( String fmtedInfix){
+    
+        Map<String,Integer> prefs = new HashMap<String,Integer>() ; 
+        Deque<String> postfix = new ArrayDeque<String>() ; 
+        Deque<String> opers = new ArrayDeque<String>() ; 
+        prefs.put("*",3);
+        prefs.put("/",3);
+        prefs.put("+",2);
+        prefs.put("-",2);
+        prefs.put("(", 0);
+        prefs.put(")", 0) ;
+        prefs.put("^",1) ;
+        String postfixOut, token, topToken  ; 
+        postfixOut ="" ; 
+        String infix ; 
+        String[] splitInfix ; 
+        infix = fmtedInfix.replace("[", " ");
+        infix = infix.replace("]", " ") ;
+        infix = infix.replace("{", " ") ; 
+        infix = infix.replace("}", " ") ; 
+        splitInfix = infix.split(" ") ; 
+        
+        for( int i= 0; i < splitInfix.length; i++)
+        {
+            System.out.println(splitInfix[i]) ; 
+        }
+        for( int i =0 ; i < splitInfix.length; i++){
+            token = splitInfix[i] ; 
+            if ( notNum(token)){
+                postfix.push(token);
+            }
+            else if( token.equals("(")){
+                opers.push(token);
+            }
+            else if( token.equals(")")){
+                topToken = opers.pop() ; 
+                while ( !topToken.equals("(")){
+                    postfix.push(topToken);
+                    topToken = opers.pop() ; 
+                }
+            }
+            else{
+                System.out.println(opers.size()) ; 
+                while( ( prefs.get(opers.getLast()) >= prefs.get(token))
+                        &&( opers.size() != 0 ) 
+                        ){
+                        postfix.push( opers.pop() );
+                }
+                opers.push(token);
+            }
+        }
+        while( opers.size() != 0 )
+        {
+            postfix.push(opers.pop());
+        }
+        
+        for( int i=0 ; i < postfix.size() ; i++){
+        
+            postfixOut += " " + postfix.pop() ; 
+        }
+         System.out.println("OK" + postfixOut);       
+        return postfixOut ; 
+
+    
+    }
+    
+    private String fPostfix( String token, float op1, float op2){
+        if ( token.equals("*")){
+            return String.format("%f", op1*op2) ; 
+        }
+        else if( token.equals("/")){
+            if( op2 == 0.0 ){
+                return "divide0" ; 
+            }
+            return String.format("%f", op1/op2) ; 
+        }
+        else if( token.equals("+")){
+            return String.format("%f", op1 + op2) ;
+        }
+        else if( token.equals("^")){
+            if ( ( op2 < 0.0 ) && ( op1 == 0.0)){
+                return "divide0";
+            }
+            else if( (op2 != 0) &&  ( (int)( 1/op2)%2 == 0 ) ){
+                return "unreal" ; 
+            }
+            else{
+                return String.format("%f", Math.pow(op1, op2)) ;
+            }
+        }
+        else if( token.equals("-")){
+            return String.format("%f", op1 - op2) ; 
+        }
+        
+        else{
+           return "unknownOp" ; 
+        }
+        
+    }
+    
+    private String evalPostfix( String postfix)
+    {
+        String token , ans, result ; 
+        float value, op1, op2 ; 
+        Deque<Float> opers = new ArrayDeque<Float>() ;
+        String[] tokens = postfix.split(" ") ; 
+        for( int i = 0; i < tokens.length ; i++ ){
+            token = tokens[i];
+            if ( !notNum( token) ){
+                if ( token.substring(0,1).equals("_") ){
+                    token = token.replace("_"," ");
+                    value = Float.parseFloat(token); 
+                    opers.push( -value);
+                }
+                else if( token.contains("_") 
+                        && (!token.substring(0,1).equals("_"))){
+                    return "bad negative" ; 
+                }
+                else{
+                    value = Float.parseFloat(token) ; 
+                    opers.push(value);
+                }
+            }
+            else{
+                op2 = opers.pop() ; 
+                op1 = opers.pop() ; 
+                result = fPostfix( token, op1, op2) ; 
+                //divide0 unreal unknownOp
+                if ( result.equals("divide0") || result.equals("unreal")||
+                        result.equals("unkownOp")){
+                    return result ; 
+                }
+                value = Float.parseFloat(result ) ; 
+                opers.push(value );
+            }
+        }
+        if ( opers.size() != 1){
+            return "syntaxError" ; 
+        }
+        return String.valueOf(opers.pop() ); 
+    }
+    
     private void addSymbol( String symbol )
     {
         symbLen = symbol.length() ; 
@@ -426,6 +634,46 @@ public class MyCalcUI extends javax.swing.JFrame {
 
     private void btnEqlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEqlActionPerformed
         // TODO add your handling code here:
+        // input not checked yet
+        noErrors=true ; 
+        // Trim and replace UI syntax with math syntax 
+        rawInfix = exprScrn.getText().trim() ; 
+        // if only cursor is left, do not continue
+        if ( rawInfix.equals("_")){
+            return ; 
+        }
+        // Remove cursor 
+        rawInfix = rawInfix.replace("_", "") ; 
+        rawInfix = rawInfix.replace("Pi", String.valueOf(Math.PI) ) ; 
+        rawInfix = rawInfix.replace("e", String.valueOf(Math.E)) ; 
+        // Expressing negative by prefixed underscore _
+        rawInfix = rawInfix.replace( "(-)", "_"); 
+        System.out.println(rawInfix) ; 
+        ansText = evalPostfix(toPostfix(fmtInfix(rawInfix))) ; 
+        if ( ansText.equals("divide0") || ansText.equals("syntaxError") ||
+                ansText.equals("bad negative") ||
+                ansText.equals("unreal") ||
+                ansText.equals("unknownOp")){
+            noErrors = false ; 
+        }
+        // Run it through ; will Try and might print 
+        if ( noErrors ){
+            
+            ansScrn.setText(ansText ); 
+        }
+        else
+        {
+            exprScrn.setText("_");
+            ansScrn.setText("");
+            newExpr = "" ; 
+            rawInfix = "" ; 
+            errScrn.setText("") ; 
+            cursorPos = 0 ; 
+            oldCursorPos = cursorPos ; 
+            errScrn.setText(ansText) ; 
+            
+        }
+        
     }//GEN-LAST:event_btnEqlActionPerformed
 
     private void btn4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn4ActionPerformed
@@ -522,15 +770,12 @@ public class MyCalcUI extends javax.swing.JFrame {
         if (cursorPos > 0 ){ 
             oldExpr = exprScrn.getText() ; 
             oldCursorPos = cursorPos ; 
-        
             newExpr = oldExpr.substring(0,cursorPos -1 ) +"_"
                     + oldExpr.substring(cursorPos -1, oldExpr.length());
-        
             cursorPos -- ; 
             newExpr = newExpr.substring(0, oldCursorPos + 1)
                     + newExpr.substring(oldCursorPos + 2, 
                             newExpr.length()) ; 
-        
             exprScrn.setText(newExpr); 
         }
         
@@ -539,7 +784,16 @@ public class MyCalcUI extends javax.swing.JFrame {
 
     private void btnRCurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRCurActionPerformed
         // TODO add your handling code here:
-        oldExpr = exprScrn.getText()  ; 
+        oldExpr = exprScrn.getText() ; 
+        if (cursorPos < ( oldExpr.length() -1 )){
+            oldCursorPos = cursorPos ; 
+            newExpr = oldExpr.substring(0, cursorPos ) 
+                    + oldExpr.substring(cursorPos+1, cursorPos+2) 
+                    + "_" 
+                    + oldExpr.substring(cursorPos+2, oldExpr.length()) ;
+            cursorPos++ ; 
+            exprScrn.setText(newExpr); 
+        }
        
     }//GEN-LAST:event_btnRCurActionPerformed
 
